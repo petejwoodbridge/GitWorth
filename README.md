@@ -125,6 +125,22 @@ Under the surface, GitWorth is an experiment in:
 
 **Narrative as value** — how much does story, intent, and framing contribute to perceived worth?
 
+## The Gamification Layer
+
+GitHub already has a game running — it's just badly designed. Stars are a coordination signal masquerading as a metric, awarded asymmetrically (popular projects accumulate stars *because* they already have stars), arriving long after the work that earned them. The result is a status game with a single illegible scoreboard and feedback loops measured in years.
+
+GitWorth introduces a richer game on top of the same primitives.
+
+**Mechanism design over metric chasing.** A valuation broken into line items exposes the *rules*. Where stars compress everything into one number no contributor can directly act on, an itemised appraisal — *"clear concept: +$240; no license: -$60; steady commit cadence: +$95"* — makes each commit, README edit, and licensing decision a move with a visible payoff. That's the gap between an opaque popularity contest and a properly designed game.
+
+**Repeated games beat one-shot games.** GitHub's native loop is roughly one-shot: build a repo, wait months, maybe accumulate stars. GitWorth makes the game **repeated and immediate** — re-appraise after every commit and watch the number move. Repeated games with visible scoring produce categorically different behaviour from one-shot ones; they reward iteration, course-correction, and patience over swing-for-the-fences launches.
+
+**Private information becomes common knowledge.** Early-stage value is real but private — the maintainer can see the bones of a project; strangers can't. A standardised appraisal is a third-party **signalling device** that produces a publicly legible statement two outsiders can read and trust to roughly the same degree. Coordination needs common knowledge, not just shared information, and a line-itemed receipt is exactly the kind of focal point that lets a contributor, a maintainer, and a curious passerby converge on the same picture of what's there.
+
+**Non-rivalrous scoring.** Stars are scarce — attention is finite and the top of any ranking is a fixed-size shelf, so the game is roughly zero-sum. Valuation isn't. A repo appraised at $475 doesn't reduce another's. Positive-sum games tend, in any reasonable mechanism design, to produce better long-run behaviour from participants.
+
+The result isn't gamification in the cynical sense — points and badges grafted onto unrelated work. It's a more honest game than the one already running: rules that are visible, payoffs that are timely, and a scoreboard that isn't rivalrous.
+
 ## Not Just a Joke
 
 Yes — it's playful. But it's also pointing at a real gap:
