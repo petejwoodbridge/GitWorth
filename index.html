@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GitWorth — Certified Repository Valuation</title>
+<style>
+  :root {
+    --paper: #f5efe1;
+    --paper-shadow: #d9d0bc;
+    --ink: #1a1612;
+    --ink-faded: #4a3f2f;
+    --ink-light: #7a6b53;
+    --stamp-red: #8b1a1a;
+    --rule: #2a221a;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #2a2622;
+    background-image:
+      repeating-linear-gradient(0deg, transparent 0, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+    min-height: 100vh;
+    font-family: 'Courier New', 'Courier', monospace;
+    color: var(--ink);
+    padding: 40px 16px 80px;
+  }
+
+  .stage {
+    max-width: 460px;
+    margin: 0 auto;
+  }
+
+  .receipt {
+    background: var(--paper);
+    background-image:
+      radial-gradient(ellipse at top, rgba(255,255,255,0.4) 0%, transparent 60%),
+      repeating-linear-gradient(45deg, transparent 0, transparent 40px, rgba(139, 116, 78, 0.04) 40px, rgba(139, 116, 78, 0.04) 80px);
+    padding: 32px 28px 24px;
+    box-shadow:
+      0 2px 0 rgba(0,0,0,0.1),
+      0 8px 24px rgba(0,0,0,0.4),
+      inset 0 0 60px rgba(139, 116, 78, 0.08);
+    position: relative;
+    margin-bottom: 24px;
+  }
+
+  .receipt::before {
+    content: "";
+    position: absolute;
+    top: -8px; left: 0; right: 0;
+    height: 10px;
+    background: var(--paper);
+    -webkit-mask-image: radial-gradient(circle at 5px 10px, transparent 4px, black 4.5px);
+    -webkit-mask-size: 10px 10px;
+    -webkit-mask-repeat: repeat-x;
+            mask-image: radial-gradient(circle at 5px 10px, transparent 4px, black 4.5px);
+            mask-size: 10px 10px;
+            mask-repeat: repeat-x;
+  }
+
+  .receipt::after {
+    content: "";
+    position: absolute;
+    bottom: -8px; left: 0; right: 0;
+    height: 10px;
+    background: var(--paper);
+    -webkit-mask-image: radial-gradient(circle at 5px 0px, transparent 4px, black 4.5px);
+    -webkit-mask-size: 10px 10px;
+    -webkit-mask-repeat: repeat-x;
+            mask-image: radial-gradient(circle at 5px 0px, transparent 4px, black 4.5px);
+            mask-size: 10px 10px;
+            mask-repeat: repeat-x;
+  }
+
+  .header {
+    text-align: center;
+    border-bottom: 2px dashed var(--rule);
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+  }
+
+  .brand {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    margin: 0 0 4px;
+    text-transform: uppercase;
+  }
+
+  .tagline {
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--ink-faded);
+    text-transform: uppercase;
+    margin: 0 0 8px;
+  }
+
+  .est {
+    font-size: 9px;
+    color: var(--ink-light);
+    letter-spacing: 0.15em;
+  }
+
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--ink-faded);
+    text-transform: uppercase;
+    margin: 18px 0 8px;
+    border-bottom: 1px dotted var(--ink-light);
+    padding-bottom: 4px;
+  }
+
+  .field {
+    margin-bottom: 10px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--ink-faded);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .field input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--ink-faded);
+    padding: 4px 2px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: var(--ink);
+    outline: none;
+  }
+
+  .field input:focus {
+    border-bottom-color: var(--ink);
+    background: rgba(0,0,0,0.03);
+  }
+
+  .field .hint {
+    font-size: 9px;
+    color: var(--ink-light);
+    margin-top: 3px;
+    font-style: italic;
+  }
+
+  .keys-toggle {
+    background: none;
+    border: 1px dashed var(--ink-faded);
+    padding: 8px 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--ink-faded);
+    cursor: pointer;
+    width: 100%;
+    text-transform: uppercase;
+    margin: 8px 0;
+  }
+
+  .keys-toggle:hover { background: rgba(0,0,0,0.04); color: var(--ink); }
+
+  .keys-panel { display: none; }
+  .keys-panel.open { display: block; }
+
+  .appraise-btn {
+    width: 100%;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    padding: 14px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 16px;
+    box-shadow: 3px 3px 0 var(--ink-faded);
+  }
+
+  .appraise-btn:hover { background: var(--ink-faded); }
+  .appraise-btn:active { box-shadow: 1px 1px 0 var(--ink-faded); transform: translate(2px, 2px); }
+  .appraise-btn:disabled { background: var(--ink-light); cursor: not-allowed; box-shadow: none; transform: none; }
+
+  .result {
+    margin-top: 24px;
+    display: none;
+  }
+  .result.show { display: block; }
+
+  .item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 4px 0;
+    font-size: 13px;
+    gap: 8px;
+  }
+
+  .item-row .desc {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+  .item-row .desc::after {
+    content: " . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .";
+    color: var(--ink-light);
+    margin-left: 6px;
+  }
+  .item-row .amt {
+    font-weight: 700;
+    white-space: nowrap;
+    background: var(--paper);
+    padding-left: 6px;
+    z-index: 1;
+  }
+  .item-row .amt.neg { color: var(--stamp-red); }
+
+  .total-row {
+    border-top: 2px dashed var(--rule);
+    border-bottom: 4px double var(--rule);
+    margin-top: 12px;
+    padding: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .grand-total {
+    font-size: 28px;
+    text-align: center;
+    margin: 16px 0;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+  }
+
+  .narrative {
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--ink-faded);
+    font-style: italic;
+    margin: 16px 0;
+    padding: 12px;
+    background: rgba(139, 116, 78, 0.06);
+    border-left: 3px solid var(--ink-faded);
+  }
+
+  .stamp {
+    position: absolute;
+    top: 32px; right: -8px;
+    transform: rotate(8deg);
+    border: 3px solid var(--stamp-red);
+    color: var(--stamp-red);
+    padding: 6px 12px;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: rgba(245, 239, 225, 0.6);
+    opacity: 0.85;
+  }
+
+  .footer-info {
+    text-align: center;
+    font-size: 9px;
+    color: var(--ink-light);
+    letter-spacing: 0.1em;
+    margin-top: 20px;
+    line-height: 1.6;
+  }
+
+  .barcode {
+    font-family: 'Courier New', monospace;
+    font-size: 22px;
+    letter-spacing: -1px;
+    text-align: center;
+    color: var(--ink);
+    margin: 8px 0 4px;
+  }
+
+  .status {
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--ink-faded);
+    text-transform: uppercase;
+    padding: 8px;
+    border: 1px dashed var(--ink-faded);
+    margin: 12px 0;
+  }
+
+  .error {
+    color: var(--stamp-red);
+    border-color: var(--stamp-red);
+  }
+
+  .blink::after {
+    content: "_";
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 16px;
+    font-size: 11px;
+    margin: 8px 0;
+  }
+  .metrics-grid > div {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px dotted var(--ink-light);
+    padding: 2px 0;
+  }
+  .metrics-grid .label {
+    color: var(--ink-faded);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 9px;
+  }
+
+  .legal {
+    font-size: 8px;
+    color: var(--ink-light);
+    text-align: center;
+    margin-top: 16px;
+    line-height: 1.5;
+    letter-spacing: 0.05em;
+  }
+
+  .reset-btn {
+    background: none;
+    border: 1px dashed var(--ink-faded);
+    padding: 6px 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--ink-faded);
+    cursor: pointer;
+    text-transform: uppercase;
+    margin-top: 12px;
+    width: 100%;
+  }
+  .reset-btn:hover { background: rgba(0,0,0,0.04); color: var(--ink); }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <div class="receipt" id="intake">
+    <div class="header">
+      <div class="brand">GitWorth</div>
+      <div class="tagline">Certified Repository Valuation</div>
+      <div class="est">EST. 2026 &middot; LICENSE #GW-447291</div>
+    </div>
+
+    <div class="section-label">Subject Property</div>
+    <div class="field">
+      <label>Repository (owner/name)</label>
+      <input type="text" id="repo" placeholder="facebook/react" autocomplete="off" />
+      <div class="hint">e.g. torvalds/linux, vercel/next.js</div>
+    </div>
+
+    <button class="keys-toggle" id="keys-toggle">&#9656; Credentials &amp; Authorisation</button>
+    <div class="keys-panel" id="keys-panel">
+      <div class="field">
+        <label>Anthropic API Key</label>
+        <input type="password" id="anthropic-key" placeholder="sk-ant-..." autocomplete="off" />
+        <div class="hint">stored locally &middot; never transmitted to this site's host</div>
+      </div>
+      <div class="field">
+        <label>GitHub Token (optional)</label>
+        <input type="password" id="github-token" placeholder="ghp_... (raises rate limit)" autocomplete="off" />
+        <div class="hint">public repos work without one, but you'll hit limits fast</div>
+      </div>
+    </div>
+
+    <button class="appraise-btn" id="appraise">Issue Valuation</button>
+
+    <div class="legal">
+      Valuations are speculative and provided for entertainment.<br />
+      No warranty as to fitness, marketability, or actual worth.
+    </div>
+  </div>
+
+  <div class="status" id="status" style="display:none;"></div>
+
+  <div class="receipt result" id="result">
+    <div class="stamp">Appraised</div>
+    <div class="header">
+      <div class="brand">Valuation Report</div>
+      <div class="tagline" id="result-repo">&mdash;</div>
+      <div class="est" id="result-date">&mdash;</div>
+    </div>
+
+    <div class="section-label">Property Particulars</div>
+    <div class="metrics-grid" id="metrics-grid"></div>
+
+    <div class="section-label">Itemised Valuation</div>
+    <div id="line-items"></div>
+
+    <div class="total-row">
+      <span>Subtotal</span>
+      <span id="subtotal">$0</span>
+    </div>
+
+    <div class="section-label">Final Appraised Value</div>
+    <div class="grand-total" id="grand-total">$0</div>
+
+    <div class="section-label">Appraiser's Notes</div>
+    <div class="narrative" id="narrative"></div>
+
+    <div class="barcode" id="barcode">|||| | ||| || |||| | || ||| |</div>
+    <div class="footer-info">
+      Thank you for choosing GitWorth<br />
+      A wholly speculative subsidiary of nowhere<br />
+      &mdash; &mdash; &mdash;
+    </div>
+
+    <button class="reset-btn" id="reset">Issue another valuation</button>
+  </div>
+
+</div>
+
+<script>
+  const LS_KEYS = { anthropic: 'gw_anthropic_key', github: 'gw_github_token' };
+  document.getElementById('anthropic-key').value = localStorage.getItem(LS_KEYS.anthropic) || '';
+  document.getElementById('github-token').value  = localStorage.getItem(LS_KEYS.github) || '';
+
+  document.getElementById('keys-toggle').addEventListener('click', () => {
+    const p = document.getElementById('keys-panel');
+    const t = document.getElementById('keys-toggle');
+    p.classList.toggle('open');
+    t.innerHTML = p.classList.contains('open')
+      ? '&#9662; Credentials &amp; Authorisation'
+      : '&#9656; Credentials &amp; Authorisation';
+  });
+
+  function setStatus(msg, isError = false) {
+    const s = document.getElementById('status');
+    if (!msg) { s.style.display = 'none'; return; }
+    s.style.display = 'block';
+    s.classList.toggle('error', isError);
+    s.classList.toggle('blink', !isError);
+    s.textContent = msg;
+  }
+
+  async function ghFetch(url, token) {
+    const headers = { 'Accept': 'application/vnd.github+json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const res = await fetch(url, { headers });
+    if (!res.ok) {
+      if (res.status === 404) throw new Error('Repository not found.');
+      if (res.status === 403) throw new Error('GitHub rate limit hit. Add a token in Credentials.');
+      throw new Error(`GitHub error ${res.status}`);
+    }
+    return res.json();
+  }
+
+  async function gatherRepoData(repoSlug, token) {
+    const base = `https://api.github.com/repos/${repoSlug}`;
+    const repo = await ghFetch(base, token);
+
+    const [contribs, commits, langs, readme] = await Promise.all([
+      ghFetch(`${base}/contributors?per_page=30&anon=1`, token).catch(() => []),
+      ghFetch(`${base}/commits?per_page=30`, token).catch(() => []),
+      ghFetch(`${base}/languages`, token).catch(() => ({})),
+      ghFetch(`${base}/readme`, token).catch(() => null),
+    ]);
+
+    let readmeText = '';
+    if (readme && readme.content) {
+      try { readmeText = atob(readme.content.replace(/\n/g, '')); } catch (e) { readmeText = ''; }
+    }
+
+    let daysSinceLastCommit = null, commitWindowDays = null;
+    if (commits.length) {
+      const newest = new Date(commits[0].commit.author.date);
+      const oldest = new Date(commits[commits.length - 1].commit.author.date);
+      daysSinceLastCommit = Math.floor((Date.now() - newest.getTime()) / 86400000);
+      commitWindowDays = Math.max(1, Math.floor((newest - oldest) / 86400000));
+    }
+
+    const ageDays = Math.floor((Date.now() - new Date(repo.created_at).getTime()) / 86400000);
+
+    return {
+      slug: repoSlug,
+      name: repo.full_name,
+      description: repo.description || '',
+      stars: repo.stargazers_count,
+      forks: repo.forks_count,
+      watchers: repo.subscribers_count,
+      open_issues: repo.open_issues_count,
+      size_kb: repo.size,
+      language: repo.language,
+      languages: langs,
+      license: repo.license ? repo.license.spdx_id : 'none',
+      archived: repo.archived,
+      age_days: ageDays,
+      created_at: repo.created_at,
+      pushed_at: repo.pushed_at,
+      contributor_count: contribs.length,
+      contributor_count_capped: contribs.length === 30,
+      commits_in_recent_window: commits.length,
+      commit_window_days: commitWindowDays,
+      days_since_last_commit: daysSinceLastCommit,
+      readme_chars: readmeText.length,
+      readme_excerpt: readmeText.slice(0, 4000),
+      topics: repo.topics || [],
+      homepage: repo.homepage || '',
+    };
+  }
+
+  async function getValuation(data, anthropicKey) {
+    const compactData = { ...data };
+    delete compactData.readme_excerpt;
+
+    const systemPrompt = `You are a tongue-in-cheek but rigorous appraiser of open-source GitHub repositories. You issue valuations in USD as if the repo were a piece of property at an estate sale. You are witty but never silly. Your numbers should be defensible, even if the entire exercise is speculative.
+
+Output ONLY valid JSON, no preamble, no code fences. Schema:
+{
+  "line_items": [
+    { "description": "short label, max 36 chars", "amount": <integer USD, can be negative for deductions> }
+  ],
+  "subtotal": <integer USD, sum of line_items>,
+  "final_value": <integer USD, what you'd actually call it after rounding/intuition>,
+  "narrative": "2-3 sentence appraiser's note in a dry, slightly wry tone. Reference the repo specifically."
+}
+
+Rules:
+- 4 to 7 line items. Mix positives and at least one negative deduction if warranted (stale, no license, abandoned, no readme, etc.).
+- Each description should reference a real attribute (stars, contributor base, language, age, topic, etc.).
+- Final value can differ slightly from subtotal - that's the appraiser's judgment line. Note the gap in the narrative if it's substantial.
+- Numbers should feel calibrated: a tiny abandoned repo might be $40. A widely-used framework might be $4M+. Don't anchor everything to round thousands.`;
+
+    const userMessage = `Appraise this repository.
+
+METRICS:
+${JSON.stringify(compactData, null, 2)}
+
+README EXCERPT (first 4000 chars):
+${data.readme_excerpt || '(no readme)'}`;
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': anthropicKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 1200,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userMessage }],
+      }),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`Anthropic error ${res.status}: ${errText.slice(0, 200)}`);
+    }
+
+    const json = await res.json();
+    const text = json.content.filter(b => b.type === 'text').map(b => b.text).join('');
+    const cleaned = text.replace(/```json|```/g, '').trim();
+    return JSON.parse(cleaned);
+  }
+
+  function fmtUSD(n) {
+    const sign = n < 0 ? '-' : '';
+    const abs = Math.abs(Math.round(n));
+    return sign + '$' + abs.toLocaleString('en-US');
+  }
+
+  function renderResult(data, valuation) {
+    document.getElementById('result-repo').textContent = data.name.toUpperCase();
+    document.getElementById('result-date').textContent =
+      new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase()
+      + ' · REF #' + Math.random().toString(36).slice(2, 8).toUpperCase();
+
+    const lang = data.language || 'mixed';
+    const stale = data.days_since_last_commit;
+    const grid = document.getElementById('metrics-grid');
+    grid.innerHTML = `
+      <div><span class="label">Stars</span><span>${data.stars.toLocaleString()}</span></div>
+      <div><span class="label">Forks</span><span>${data.forks.toLocaleString()}</span></div>
+      <div><span class="label">Watchers</span><span>${data.watchers.toLocaleString()}</span></div>
+      <div><span class="label">Open issues</span><span>${data.open_issues.toLocaleString()}</span></div>
+      <div><span class="label">Age</span><span>${(data.age_days / 365).toFixed(1)}y</span></div>
+      <div><span class="label">Last commit</span><span>${stale === null ? '—' : stale + 'd ago'}</span></div>
+      <div><span class="label">Language</span><span>${lang}</span></div>
+      <div><span class="label">License</span><span>${data.license || 'none'}</span></div>
+    `;
+
+    const itemsEl = document.getElementById('line-items');
+    itemsEl.innerHTML = '';
+    valuation.line_items.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'item-row';
+      const desc = document.createElement('span');
+      desc.className = 'desc';
+      desc.textContent = item.description;
+      const amt = document.createElement('span');
+      amt.className = 'amt' + (item.amount < 0 ? ' neg' : '');
+      amt.textContent = fmtUSD(item.amount);
+      row.appendChild(desc);
+      row.appendChild(amt);
+      itemsEl.appendChild(row);
+    });
+
+    document.getElementById('subtotal').textContent = fmtUSD(valuation.subtotal);
+    document.getElementById('grand-total').textContent = fmtUSD(valuation.final_value);
+    document.getElementById('narrative').textContent = '“' + valuation.narrative + '”';
+
+    const seed = data.name.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+    let bc = '';
+    for (let i = 0; i < 28; i++) {
+      bc += ((seed * (i + 1)) % 3 === 0) ? '||' : ((seed * i) % 2 === 0) ? '|' : ' ';
+    }
+    document.getElementById('barcode').textContent = bc;
+
+    document.getElementById('result').classList.add('show');
+    document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.getElementById('appraise').addEventListener('click', async () => {
+    const repoInput = document.getElementById('repo').value.trim();
+    const anthropicKey = document.getElementById('anthropic-key').value.trim();
+    const githubToken  = document.getElementById('github-token').value.trim();
+
+    const slug = repoInput.replace(/^https?:\/\/github\.com\//i, '').replace(/\/$/, '').replace(/\.git$/, '');
+
+    if (!/^[\w.-]+\/[\w.-]+$/.test(slug)) {
+      setStatus('Invalid repo. Use owner/name format.', true);
+      return;
+    }
+    if (!anthropicKey) {
+      setStatus('Anthropic API key required.', true);
+      document.getElementById('keys-panel').classList.add('open');
+      document.getElementById('keys-toggle').innerHTML = '&#9662; Credentials &amp; Authorisation';
+      return;
+    }
+
+    localStorage.setItem(LS_KEYS.anthropic, anthropicKey);
+    if (githubToken) localStorage.setItem(LS_KEYS.github, githubToken);
+
+    const btn = document.getElementById('appraise');
+    btn.disabled = true;
+
+    document.getElementById('result').classList.remove('show');
+
+    try {
+      setStatus('Inspecting subject property');
+      const data = await gatherRepoData(slug, githubToken);
+
+      setStatus('Consulting senior appraiser');
+      const valuation = await getValuation(data, anthropicKey);
+
+      setStatus('');
+      renderResult(data, valuation);
+    } catch (err) {
+      console.error(err);
+      setStatus('Error: ' + err.message, true);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  document.getElementById('reset').addEventListener('click', () => {
+    document.getElementById('result').classList.remove('show');
+    document.getElementById('repo').value = '';
+    document.getElementById('repo').focus();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  document.getElementById('repo').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('appraise').click();
+  });
+</script>
+
+</body>
+</html>
